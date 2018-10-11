@@ -4,4 +4,5 @@
   (:use #:cl)
   (:export #:analyze
 	   #:next-state
-	   #:generate))
+	   #:generate
+	   #:ht->matrix))

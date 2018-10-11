@@ -60,3 +60,21 @@
 	     :while next
 	     :do (push next results))
        (reverse results)))))
+
+(defun ht->matrix (ht)
+  "Return a transition matrix for the model in HT. Only works with first-order chains."
+  (assert (= (length (any-key ht)) 1) nil "HT must be a first-order chain.")
+  (make-array
+   (list (hash-table-count ht) (hash-table-count ht))
+   :initial-contents (loop
+		       :for x :being :the :hash-keys :of ht
+		       :collect
+		       (loop
+			 :with sum-values := (reduce #'+
+						     (alexandria:hash-table-values
+						      (gethash x ht)))
+			 :for y :being :the :hash-keys :of ht
+			 :for v := (gethash (elt y 0) (gethash x ht))
+			 :collect (if (not v)
+				      0
+				      (/ v sum-values))))))
