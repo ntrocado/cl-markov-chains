@@ -2,7 +2,7 @@
 
 A library for modeling Markov chains in Common Lisp.
 
-It works with multiple data types and first- as well as _n_th-order chains.
+It works with multiple data types and first- as well as *n*th-order chains.
 
 ## Usage examples
 
