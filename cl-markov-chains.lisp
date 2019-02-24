@@ -7,13 +7,14 @@
 	:for read-pointer :from 0 :below (- (length data) order)
 	:for key := (subseq data read-pointer (+ read-pointer order))
         :for next := (elt data (+ read-pointer order))
-	:do (if (not (hash-table-p (gethash key ht)))
+	:for hash-key := (gethash key ht)
+	:do (if (not (hash-table-p hash-key))
 		(progn
 		  (setf (gethash key ht) (make-hash-table))
 		  (setf (gethash next (gethash key ht)) 1))
-		(if (not (gethash next (gethash key ht)))
-		    (setf (gethash next (gethash key ht)) 1)
-		    (incf (gethash next (gethash key ht)))))
+		(if (not (gethash next hash-key))
+		    (setf (gethash next hash-key) 1)
+		    (incf (gethash next hash-key))))
 	:finally (return ht)))
 
 (defun next-state (ht current)
@@ -62,19 +63,21 @@
        (reverse results)))))
 
 (defun ht->matrix (ht)
-  "Return a transition matrix for the model in HT. Only works with first-order chains."
+  "Return a transition matrix for the model in HT and a list with the designators for each state. Only works with first-order chains."
   (assert (= (length (any-key ht)) 1) nil "HT must be a first-order chain.")
-  (make-array
-   (list (hash-table-count ht) (hash-table-count ht))
-   :initial-contents (loop
-		       :for x :being :the :hash-keys :of ht
-		       :collect
-		       (loop
-			 :with sum-values := (reduce #'+
-						     (alexandria:hash-table-values
-						      (gethash x ht)))
-			 :for y :being :the :hash-keys :of ht
-			 :for v := (gethash (elt y 0) (gethash x ht))
-			 :collect (if (not v)
-				      0
-				      (/ v sum-values))))))
+  (values 
+   (make-array
+    (list (hash-table-count ht) (hash-table-count ht))
+    :initial-contents (loop
+			:for x :being :the :hash-keys :of ht
+			:collect
+			(loop
+			  :with sum-values := (reduce #'+
+						      (alexandria:hash-table-values
+						       (gethash x ht)))
+			  :for y :being :the :hash-keys :of ht
+			  :for v := (gethash (elt y 0) (gethash x ht))
+			  :collect (if (not v)
+				       0
+				       (/ v sum-values)))))
+   (alexandria:hash-table-keys ht)))
