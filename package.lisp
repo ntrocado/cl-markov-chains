@@ -5,4 +5,5 @@
   (:export #:analyze
 	   #:next-state
 	   #:generate
-	   #:ht->matrix))
+	   #:ht->matrix
+	   #:define-model))
