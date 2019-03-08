@@ -81,3 +81,20 @@
 				       0
 				       (/ v sum-values)))))
    (alexandria:hash-table-keys ht)))
+
+(defun define-transition (ht previous next probability)
+  (when (not (hash-table-p (gethash (alexandria:ensure-list previous) ht)))
+    (setf (gethash (alexandria:ensure-list previous) ht) (make-hash-table)))
+  (setf (gethash next (gethash (alexandria:ensure-list previous) ht))
+	probability)
+  ht)
+
+(defun define-model (transition-list)
+  "Return a nested hash-table for the model defined by a list of transistions. TRANSITION-LIST must be in the foloowing form:
+'((previous-state1 next-state1 probability1) 
+  (previous-state2 next-state2 probability2) 
+  ... 
+  (previous-state-n next-state-n probability-n)."
+  (let ((ht (make-hash-table :test 'equal)))
+    (mapc (alexandria:curry #'apply #'define-transition ht) transition-list)
+    ht))
