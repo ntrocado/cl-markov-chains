@@ -98,3 +98,21 @@
   (let ((ht (make-hash-table :test 'equal)))
     (mapc (alexandria:curry #'apply #'define-transition ht) transition-list)
     ht))
+
+(defun define-model-from-matrix (elements transition-matrix)
+  "Return a nested hash table for the model defined by a transition matrix for
+elements. Matrix in the form (elements from left to right and top to bottom):
+  '(.9   .05  .01  .04)
+  '(.05  .9   .01  .04)
+  '(0    0    .9   .1 )
+  '(0    0    0    1  )"
+  (let (transition-list (row-count 0) (column-count 0) )
+    (dolist (element elements)
+      (setf column-count 0)
+      (dolist (other elements)
+        (push (list element other (nth column-count
+                                       (nth row-count transition-matrix)))
+              transition-list)
+        (setf column-count (1+ column-count)))
+      (setf row-count (1+ row-count)))
+    (define-model (nreverse transition-list))))
