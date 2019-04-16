@@ -6,4 +6,5 @@
 	   #:next-state
 	   #:generate
 	   #:ht->matrix
-	   #:define-model))
+	   #:define-model
+     #:define-model-from-matrix))
